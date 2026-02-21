@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "468683095447",
+    "project_id": "dating-app-551a5",
+    "storage_bucket": "dating-app-551a5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:468683095447:android:e389512ddd955171f218d2",
+        "android_client_info": {
+          "package_name": "com.campusarena.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBHgClTPpVelNu-4xnPi75zMKG3yI9hTVA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

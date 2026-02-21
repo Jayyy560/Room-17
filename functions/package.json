@@ -1,0 +1,19 @@
+{
+  "name": "functions",
+  "scripts": {
+    "build": "tsc",
+    "lint": "echo lint",
+    "deploy": "firebase deploy --only functions"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "firebase-admin": "latest",
+    "firebase-functions": "latest"
+  },
+  "devDependencies": {
+    "typescript": "latest"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "Room 17",
+    "slug": "room-17",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "platforms": [
+      "android"
+    ],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "userInterfaceStyle": "light",
+    "scheme": "room17",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/room17-logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "android": {
+      "package": "com.room17.app",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "NOTIFICATIONS"
+      ],
+      "googleServicesFile": "google-services.json",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "plugins": [
+      "expo-notifications",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you share them with your friends.",
+          "cameraPermission": "The app accesses your camera to let you take a profile picture."
+        }
+      ],
+      "@react-native-community/datetimepicker"
+    ],
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    }
+  }
+}

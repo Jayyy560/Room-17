@@ -1,0 +1,41 @@
+{
+  "name": "dating-app",
+  "version": "1.0.0",
+  "private": true,
+  "main": "node_modules/expo/AppEntry.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@expo/vector-icons": "^15.0.3",
+    "@react-native-community/datetimepicker": "8.4.4",
+    "@react-navigation/native": "latest",
+    "@react-navigation/native-stack": "latest",
+    "@types/react": "~19.1.10",
+    "babel-preset-expo": "~54.0.10",
+    "expo": "latest",
+    "expo-blur": "~15.0.8",
+    "expo-device": "latest",
+    "expo-image-picker": "~17.0.10",
+    "expo-linear-gradient": "~15.0.8",
+    "expo-location": "latest",
+    "expo-notifications": "latest",
+    "firebase": "latest",
+    "react": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-gesture-handler": "~2.28.0",
+    "react-native-reanimated": "~4.1.1",
+    "react-native-safe-area-context": "latest",
+    "react-native-screens": "~4.16.0"
+  },
+  "devDependencies": {
+    "@types/react": "latest",
+    "@types/react-native": "latest",
+    "expo-module-scripts": "^5.0.8",
+    "typescript": "latest"
+  }
+}
