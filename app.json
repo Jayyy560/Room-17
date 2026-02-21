@@ -21,9 +21,10 @@
     "android": {
       "package": "com.room17.app",
       "permissions": [
-        "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION",
-        "NOTIFICATIONS"
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.NOTIFICATIONS",
+        "android.permission.RECORD_AUDIO"
       ],
       "googleServicesFile": "google-services.json",
       "adaptiveIcon": {
@@ -44,6 +45,11 @@
     ],
     "updates": {
       "fallbackToCacheTimeout": 0
+    },
+    "extra": {
+      "eas": {
+        "projectId": "40466073-593d-4517-8ba5-2d41d1c683a7"
+      }
     }
   }
 }

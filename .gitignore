@@ -21,6 +21,11 @@ yarn-error.log*
 .venv/
 functions/node_modules/
 functions/lib/
+# Firebase configs (keep out of VCS)
+google-services.json
+GoogleService-Info.plist
+# Any env files anywhere
+**/.env
 # Firebase emulator/state
 firebase-debug.log
 .firebaserc.private

@@ -35,6 +35,7 @@
   "devDependencies": {
     "@types/react": "latest",
     "@types/react-native": "latest",
+    "eas-cli": "^18.0.3",
     "expo-module-scripts": "^5.0.8",
     "typescript": "latest"
   }
