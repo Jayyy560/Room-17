@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:468683095447:android:e6ac05272ac18c04f218d2",
+        "mobilesdk_app_id": "1:468683095447:android:e389512ddd955171f218d2",
         "android_client_info": {
-          "package_name": "com.room17.app"
+          "package_name": "com.campusarena.app"
         }
       },
       "oauth_client": [],
