@@ -1,28 +1,31 @@
-import { initializeApp, getApps } from 'firebase/app';
-import { getAuth, connectAuthEmulator } from 'firebase/auth';
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getAuth, initializeAuth, connectAuthEmulator } from 'firebase/auth';
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 import { getStorage, connectStorageEmulator } from 'firebase/storage';
 import { Platform } from 'react-native';
-
-const requireEnv = (key: string) => {
-  const val = process.env[key];
-  if (!val) throw new Error(`Missing environment variable: ${key}`);
-  return val;
-};
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const firebaseConfig = {
-  apiKey: requireEnv('EXPO_PUBLIC_FIREBASE_API_KEY'),
-  authDomain: requireEnv('EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN'),
-  projectId: requireEnv('EXPO_PUBLIC_FIREBASE_PROJECT_ID'),
-  storageBucket: requireEnv('EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET'),
-  messagingSenderId: requireEnv('EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID'),
-  appId: requireEnv('EXPO_PUBLIC_FIREBASE_APP_ID'),
-  measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID,
+  apiKey: 'AIzaSyD1U0wFe4Hv-t1PiLs2RQH_Bj7SKKGEqrw',
+  authDomain: 'dating-app-551a5.firebaseapp.com',
+  projectId: 'dating-app-551a5',
+  storageBucket: 'dating-app-551a5.firebasestorage.app',
+  messagingSenderId: '468683095447',
+  appId: '1:468683095447:web:ad9deeafec425a48f218d2',
+  measurementId: 'G-XRBPH7J5Y2',
 };
 
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-export const auth = getAuth(app);
+// Ensure auth uses device storage so sessions persist across app restarts.
+const asyncStoragePersistence = {
+  type: 'LOCAL' as const,
+  setItem: (key: string, value: string) => AsyncStorage.setItem(key, value),
+  getItem: (key: string) => AsyncStorage.getItem(key),
+  removeItem: (key: string) => AsyncStorage.removeItem(key),
+};
+
+export const auth = getApps().length === 0 ? initializeAuth(app, { persistence: asyncStoragePersistence }) : getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 
