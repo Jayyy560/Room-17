@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth, initializeAuth, connectAuthEmulator } from 'firebase/auth';
+import { getAuth, initializeAuth, connectAuthEmulator, getReactNativePersistence } from '@firebase/auth';
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 import { getStorage, connectStorageEmulator } from 'firebase/storage';
 import { Platform } from 'react-native';
@@ -18,14 +18,9 @@ const firebaseConfig = {
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
 // Ensure auth uses device storage so sessions persist across app restarts.
-const asyncStoragePersistence = {
-  type: 'LOCAL' as const,
-  setItem: (key: string, value: string) => AsyncStorage.setItem(key, value),
-  getItem: (key: string) => AsyncStorage.getItem(key),
-  removeItem: (key: string) => AsyncStorage.removeItem(key),
-};
-
-export const auth = getApps().length === 0 ? initializeAuth(app, { persistence: asyncStoragePersistence }) : getAuth(app);
+export const auth = getApps().length === 0
+  ? initializeAuth(app, { persistence: getReactNativePersistence(AsyncStorage) })
+  : getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 
