@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Alert, FlatList, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { theme } from '../utils/theme';
 import { useAuthContext } from '../hooks/useAuth';
+import { useArenaContext } from '../hooks/useArena';
 import { extendChat, listenMatches, listenMessages, markMatchRead, markMetIRL, sendMessage, UserProfile } from '../services/firestore';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -10,6 +11,7 @@ import { useRoute, RouteProp } from '@react-navigation/native';
 
 const ChatScreen: React.FC = () => {
   const { user } = useAuthContext();
+  const { arena } = useArenaContext();
   const route = useRoute<RouteProp<RootStackParamList, 'Chat'>>();
   const matchId = route.params?.matchId;
   const [selected, setSelected] = useState<any | null>(null);
@@ -18,13 +20,13 @@ const ChatScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   useEffect(() => {
-    if (!user || !matchId) return;
-    const unsub = listenMatches(user.uid, matches => {
+    if (!user || !matchId || !arena) return;
+    const unsub = listenMatches(user.uid, arena.id, matches => {
       const found = matches.find(m => m.id === matchId);
       setSelected(found || null);
     });
     return unsub;
-  }, [user, matchId]);
+  }, [user, matchId, arena?.id]);
 
   useEffect(() => {
     if (!selected) return;

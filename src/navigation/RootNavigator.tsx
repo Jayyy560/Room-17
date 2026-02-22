@@ -8,6 +8,8 @@ import MatchesScreen from '@screens/MatchesScreen';
 import ChatScreen from '../screens/ChatScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import { useAuthContext } from '../hooks/useAuth';
+import { Platform } from 'react-native';
+import AdminScreen from '../screens/AdminScreen';
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -16,17 +18,28 @@ export type RootStackParamList = {
   Matches: undefined;
   Chat: { matchId: string };
   Profile: undefined;
+  Admin: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const RootNavigator = () => {
   const { user, loading } = useAuthContext();
+  const isWeb = Platform.OS === 'web';
+
+  const linking = {
+    prefixes: ['room17://'],
+    config: {
+      screens: {
+        Admin: 'admin',
+      },
+    },
+  };
 
   if (loading) return null;
 
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       <Stack.Navigator id="root" screenOptions={{ headerShown: false }}>
         {user ? (
           <>
@@ -35,6 +48,7 @@ const RootNavigator = () => {
             <Stack.Screen name="Matches" component={MatchesScreen} />
             <Stack.Screen name="Chat" component={ChatScreen} />
             <Stack.Screen name="Profile" component={ProfileScreen} />
+            {isWeb && <Stack.Screen name="Admin" component={AdminScreen} />}
           </>
         ) : (
           <Stack.Screen name="Auth" component={AuthScreen} />

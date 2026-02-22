@@ -3,6 +3,7 @@ import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import { theme } from '../utils/theme';
 import { useAuthContext } from '../hooks/useAuth';
+import { useArenaContext } from '../hooks/useArena';
 import { archiveMatch, listenMatches, unmatchMatch } from '../services/firestore';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -10,14 +11,30 @@ import { RootStackParamList } from '../navigation/RootNavigator';
 
 const MatchesScreen: React.FC = () => {
   const { user } = useAuthContext();
+  const { arena } = useArenaContext();
   const [matches, setMatches] = useState<any[]>([]);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
+  if (!arena) {
+    return (
+      <View style={{ flex: 1, backgroundColor: theme.colors.background, paddingTop: 48, paddingHorizontal: 16 }}>
+        <Text style={{ color: theme.colors.text, fontSize: 26, fontWeight: '800' }}>Matches</Text>
+        <Text style={{ color: theme.colors.muted, marginTop: 6 }}>Select an arena to see matches.</Text>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Arena')}
+          style={{ backgroundColor: theme.colors.cardAlt, padding: 12, borderRadius: 20, marginTop: 16, borderWidth: 2, borderColor: theme.colors.buttonBorder }}
+        >
+          <Text style={{ color: theme.colors.text, fontWeight: '800', textAlign: 'center' }}>Go to Arena</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   useEffect(() => {
-    if (!user) return;
-    const unsub = listenMatches(user.uid, setMatches);
+    if (!user || !arena) return;
+    const unsub = listenMatches(user.uid, arena.id, setMatches);
     return unsub;
-  }, [user]);
+  }, [user, arena?.id]);
 
   const handleArchive = (matchId: string) => {
     if (!user) return;

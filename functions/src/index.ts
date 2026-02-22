@@ -35,31 +35,29 @@ const sendPush = async (tokens: string[], title: string, body: string) => {
 };
 
 export const onSignalCreate = onDocumentCreated('signals/{signalId}', async event => {
-  const payload = event.data?.data() as { senderId: string; receiverId: string } | undefined;
+  const payload = event.data?.data() as { arenaId: string; senderId: string; receiverId: string } | undefined;
   if (!payload) return;
-  const { senderId, receiverId } = payload;
+  const { arenaId, senderId, receiverId } = payload;
+  const reverseId = `${arenaId}_${receiverId}_${senderId}`;
+  const matchId = `${arenaId}_${[senderId, receiverId].sort().join('_')}`;
 
-  const reverse = await db
-    .collection('signals')
-    .where('senderId', '==', receiverId)
-    .where('receiverId', '==', senderId)
-    .limit(1)
-    .get();
+  let createdMatch = false;
+  await db.runTransaction(async tx => {
+    const matchRef = db.collection('matches').doc(matchId);
+    const reverseRef = db.collection('signals').doc(reverseId);
+    const currentRef = db.collection('signals').doc(event.params.signalId);
 
-  if (reverse.empty) return;
+    const matchSnap = await tx.get(matchRef);
+    if (matchSnap.exists) {
+      tx.delete(currentRef);
+      return;
+    }
 
-  const existing = await db
-    .collection('matches')
-    .where('participants', 'array-contains', senderId)
-    .get();
+    const reverseSnap = await tx.get(reverseRef);
+    if (!reverseSnap.exists) return;
 
-  const alreadyMatched = existing.docs.some(doc => {
-    const participants = doc.data().participants || [];
-    return participants.includes(receiverId);
-  });
-
-  if (!alreadyMatched) {
-    await db.collection('matches').add({
+    tx.set(matchRef, {
+      arenaId,
       userA: senderId,
       userB: receiverId,
       participants: [senderId, receiverId],
@@ -67,20 +65,20 @@ export const onSignalCreate = onDocumentCreated('signals/{signalId}', async even
       metIRL: false,
       extendedBy: [],
     });
-    await bumpBravery(senderId, 20);
-    await bumpBravery(receiverId, 20);
-  }
+    tx.delete(currentRef);
+    tx.delete(reverseRef);
+    createdMatch = true;
+  });
 
-  await db.collection('signals').doc(event.params.signalId).delete();
-  if (!reverse.empty) await reverse.docs[0].ref.delete();
-
-  const senderSnap = await db.collection('users').doc(senderId).get();
-  const receiverSnap = await db.collection('users').doc(receiverId).get();
-  const senderToken = senderSnap.data()?.pushToken;
-  const receiverToken = receiverSnap.data()?.pushToken;
-  const tokens = [senderToken, receiverToken].filter(Boolean) as string[];
-  if (tokens.length) {
-    await sendPush(tokens, 'New match!', 'A mutual signal locked in. Open the arena.');
+  if (createdMatch) {
+    const senderSnap = await db.collection('users').doc(senderId).get();
+    const receiverSnap = await db.collection('users').doc(receiverId).get();
+    const senderToken = senderSnap.data()?.pushToken;
+    const receiverToken = receiverSnap.data()?.pushToken;
+    const tokens = [senderToken, receiverToken].filter(Boolean) as string[];
+    if (tokens.length) {
+      await sendPush(tokens, 'New match!', 'A mutual signal locked in. Open the arena.');
+    }
   }
 });
 

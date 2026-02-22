@@ -1,16 +1,22 @@
 import { useEffect, useState } from 'react';
-import { requestLocation, isInsideZone, zoneInfo } from '../services/location';
+import { Arena } from '../services/firestore';
+import { requestLocation, isInsideArena } from '../services/location';
 
-export const useZone = () => {
+export const useZone = (arena: Arena | null) => {
   const [inZone, setInZone] = useState(false);
   const [distance, setDistance] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const check = async () => {
+      if (!arena) {
+        setInZone(false);
+        setDistance(null);
+        return;
+      }
       try {
         const loc = await requestLocation();
-        const { inZone: inside, distance: dist } = isInsideZone(loc.coords);
+        const { inZone: inside, distance: dist } = isInsideArena(loc.coords, arena);
         setInZone(inside);
         setDistance(dist);
       } catch (e: any) {
@@ -18,7 +24,7 @@ export const useZone = () => {
       }
     };
     check();
-  }, []);
+  }, [arena?.id]);
 
-  return { inZone, distance, error, zone: zoneInfo };
+  return { inZone, distance, error };
 };

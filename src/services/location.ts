@@ -1,12 +1,6 @@
 import * as Location from 'expo-location';
 import { getDistanceMeters } from '../utils/haversine';
-
-const ZONE = {
-  id: 'campus-zone-1',
-  latitude: 30.1742433,
-  longitude: 77.3068033,
-  radius: 100,
-};
+import { Arena } from './firestore';
 
 export const requestLocation = async () => {
   const { status } = await Location.requestForegroundPermissionsAsync();
@@ -16,14 +10,12 @@ export const requestLocation = async () => {
   return Location.getCurrentPositionAsync({});
 };
 
-export const isInsideZone = (coords: { latitude: number; longitude: number }) => {
+export const isInsideArena = (coords: { latitude: number; longitude: number }, arena: Arena) => {
   const distance = getDistanceMeters(
     coords.latitude,
     coords.longitude,
-    ZONE.latitude,
-    ZONE.longitude
+    arena.latitude,
+    arena.longitude
   );
-  return { inZone: distance <= ZONE.radius, distance, zone: ZONE };
+  return { inZone: distance <= arena.radius, distance };
 };
-
-export const zoneInfo = ZONE;

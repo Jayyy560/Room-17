@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Alert, FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { theme } from '../utils/theme';
 import { useAuthContext } from '../hooks/useAuth';
-import { useActivationWindow } from '../hooks/useActivationWindow';
+import { useArenaContext } from '../hooks/useArena';
+import { useZone } from '../hooks/useZone';
+import { useArenaWindow } from '../hooks/useArenaWindow';
 import { listenActiveUsers, listenIncomingSignals, sendSignal, UserProfile } from '../services/firestore';
-import { zoneInfo } from '../services/location';
 import { UserCard } from '../components/UserCard';
 import { MatchAnimation } from '../components/MatchAnimation';
 import { useNavigation } from '@react-navigation/native';
@@ -13,7 +14,9 @@ import { RootStackParamList } from '../navigation/RootNavigator';
 
 const SignalsScreen: React.FC = () => {
   const { user, profile } = useAuthContext();
-  const { inWindow } = useActivationWindow();
+  const { arena } = useArenaContext();
+  const { inZone } = useZone(arena);
+  const { inWindow } = useArenaWindow(arena);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [anim, setAnim] = useState(false);
   const [incomingSignals, setIncomingSignals] = useState<any[]>([]);
@@ -49,23 +52,30 @@ const SignalsScreen: React.FC = () => {
   };
 
   useEffect(() => {
-    const unsub = listenActiveUsers(zoneInfo.id, setUsers as any);
+    if (!arena) return;
+    const unsub = listenActiveUsers(arena.id, setUsers as any);
     return unsub;
-  }, []);
+  }, [arena?.id]);
 
   useEffect(() => {
-    if (!user) return;
-    const unsub = listenIncomingSignals(user.uid, setIncomingSignals);
+    if (!user || !arena) return;
+    const start = arena.startTime?.toDate?.() || new Date(arena.startTime as any);
+    const end = arena.endTime?.toDate?.() || new Date(arena.endTime as any);
+    const unsub = listenIncomingSignals(user.uid, arena.id, start, end, setIncomingSignals);
     return unsub;
-  }, [user]);
+  }, [user, arena?.id]);
 
   const handleSignal = async (target: UserProfile) => {
-    if (!user || !profile) return;
-    if (!inWindow) return Alert.alert('Closed', 'Signals are open 3–5 PM only.');
+    if (!user || !profile || !arena) return;
+    if (profile.activeArenaId && profile.activeArenaId !== arena.id) {
+      return Alert.alert('Wrong arena', 'You are active in a different arena.');
+    }
+    if (!inWindow) return Alert.alert('Closed', 'Arena signals are closed.');
+    if (!inZone) return Alert.alert('Out of range', 'You are outside the arena radius.');
     if ((profile.signalsRemaining || 0) <= 0) return Alert.alert('Out of signals', 'Activate again next window.');
     if (profile.blockedUserIds?.includes(target.uid)) return;
     try {
-      await sendSignal(user.uid, target.uid);
+      await sendSignal(arena.id, user.uid, target.uid);
       setAnim(true);
       setJustSent(true);
       setTimeout(() => setJustSent(false), 2000);
@@ -74,6 +84,21 @@ const SignalsScreen: React.FC = () => {
       Alert.alert('Error', e.message);
     }
   };
+
+  if (!arena) {
+    return (
+      <View style={{ flex: 1, backgroundColor: theme.colors.background, padding: 20, paddingTop: 48 }}>
+        <Text style={{ color: theme.colors.text, fontSize: 26, fontWeight: '800' }}>Signals</Text>
+        <Text style={{ color: theme.colors.muted, marginTop: 6 }}>Select an arena to see active users.</Text>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Arena')}
+          style={{ backgroundColor: theme.colors.cardAlt, padding: 12, borderRadius: 20, marginTop: 16, borderWidth: 2, borderColor: theme.colors.buttonBorder }}
+        >
+          <Text style={{ color: theme.colors.text, fontWeight: '800', textAlign: 'center' }}>Go to Arena</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background, padding: 20, paddingTop: 48 }}>
@@ -98,8 +123,11 @@ const SignalsScreen: React.FC = () => {
           </Text>
         </View>
       )}
-      <Text style={{ color: theme.colors.muted, marginTop: 4 }}>Active in your zone: {zoneInfo.id}</Text>
+      <Text style={{ color: theme.colors.muted, marginTop: 4 }}>Active arena: {arena?.name || 'None'}</Text>
       <Text style={{ color: theme.colors.muted, marginTop: 4 }}>Signals left: {profile?.signalsRemaining || 0}</Text>
+      {!inZone && (
+        <Text style={{ color: theme.colors.warning, marginTop: 4 }}>You are outside the arena radius.</Text>
+      )}
 
       <FlatList
         data={users.filter(

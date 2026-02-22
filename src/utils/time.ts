@@ -14,6 +14,10 @@ export const isInActivationWindow = (now: Date) => {
   return now >= start && now <= end;
 };
 
+export const isWithinTimeRange = (now: Date, start: Date, end: Date) => {
+  return now >= start && now <= end;
+};
+
 export const nextActivationWindow = (now: Date) => {
   const start = new Date(now);
   start.setHours(ACTIVATION_START_HOUR, 0, 0, 0);

@@ -3,8 +3,11 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import { AuthProvider, useAuthContext } from './src/hooks/useAuth';
+import { ArenaProvider } from './src/hooks/useArena';
 import RootNavigator from './src/navigation/RootNavigator';
 import { updatePushToken } from './src/services/firestore';
+import { useFonts } from 'expo-font';
+import { Ionicons } from '@expo/vector-icons';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -42,12 +45,18 @@ const PushRegistrar = () => {
 };
 
 export default function App() {
+  const [fontsLoaded] = useFonts(Ionicons.font);
+
+  if (!fontsLoaded) return null;
+
   return (
     <AuthProvider>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <PushRegistrar />
-        <RootNavigator />
-      </GestureHandlerRootView>
+      <ArenaProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <PushRegistrar />
+          <RootNavigator />
+        </GestureHandlerRootView>
+      </ArenaProvider>
     </AuthProvider>
   );
 }
